@@ -541,6 +541,7 @@ svg:hover {
   }
   .task-input {
     width: 100%;
+    min-height: 46px;
     border-radius: 100px;
   }
   .duedate {
