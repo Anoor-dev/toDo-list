@@ -9,6 +9,18 @@ const emptyState = document.querySelector(".empty-state");
 const cardTemplate = document.querySelector("#task-template");
 const progressFill = document.querySelector(".progress-fill");
 const progressLabel = document.querySelector(".progress-label");
+const checkIcon = `
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round"
+        d="m4.5 12.75 6 6 9-13.5" />
+</svg>
+`;
+const xIcon = `
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round"
+        d="M6 18 18 6M6 6l12 12" />
+</svg>
+`;
 
 let tasks = [];
 const savedTasks = localStorage.getItem("tasks");
@@ -26,6 +38,7 @@ const datePickerInstance = flatpickr(".duedate", {
   altInput: true,
   altFormat: "F j, Y",
   minDate: "today",
+  defaultDate: "today",
 });
 
 if (loadedTasks) {
@@ -62,7 +75,9 @@ function createtasks(id, name, due, done = false, index = tasks.length) {
   taskCard.dataset.id = id;
   taskCard.style.animationDelay = Math.min(index * 60, 300) + "ms";
 
-  taskCard.querySelector(".task-name").textContent = name;
+  const taskNameEl = taskCard.querySelector(".task-name");
+
+  taskNameEl.textContent = name;
   taskCard.querySelector(".task-due").textContent = `due: ${due}`;
 
   taskList.appendChild(taskCard);
@@ -71,15 +86,20 @@ function createtasks(id, name, due, done = false, index = tasks.length) {
   const deleteBtn = taskCard.querySelector(".delete-btn");
 
   if (done) {
-    taskCard.classList.add("done");
+    taskNameEl.classList.add("done");
+    checkBtn.innerHTML = xIcon;
   }
 
   checkBtn.addEventListener("click", () => {
-    taskCard.classList.toggle("done");
+    taskNameEl.classList.toggle("done");
 
-    tasks = tasks.map(function (task) {
+    const isDone = taskNameEl.classList.contains("done");
+
+    checkBtn.innerHTML = isDone ? xIcon : checkIcon;
+
+    tasks = tasks.map((task) => {
       if (task.id === id) {
-        return { ...task, done: !task.done };
+        return { ...task, done: isDone };
       }
       return task;
     });
@@ -133,7 +153,7 @@ function addAndDoneTask() {
 
   localStorage.setItem("tasks", JSON.stringify(tasks));
 
-  datePickerInstance.clear();
+  datePickerInstance.setDate("today");
   taskName.value = "";
   taskName.focus();
 
